@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs-explain"
+version = "0.1.0"
+description = "Offline replay and verification for executable computer-science explanations"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+authors = [{name = "Boxi CS"}]
+dependencies = []
+
+[project.scripts]
+csx = "csx.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

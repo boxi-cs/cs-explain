@@ -1,0 +1,63 @@
+{
+  "schema_version": "trace/v0.1",
+  "trace_id": "agent-loop-context/correct",
+  "title": "A bounded agent loop keeps the requested context",
+  "seed": 7,
+  "source": {
+    "controller.py": "request = read_request()\ncontext = select_context(request)\nobservation = call_tool(context)\nreturn observation\n"
+  },
+  "events": [
+    {
+      "id": "e0",
+      "logical_time": 0,
+      "actor": "controller",
+      "operation": "read_request",
+      "source_span": {"file": "controller.py", "line": 1},
+      "state_delta": {"request": "show build status", "steps": 1},
+      "observation": "The learner request is available to the controller.",
+      "causal_parents": [],
+      "assertions": []
+    },
+    {
+      "id": "e1",
+      "logical_time": 1,
+      "actor": "controller",
+      "operation": "select_context",
+      "source_span": {"file": "controller.py", "line": 2},
+      "state_delta": {"context": ["repository/status.json"], "steps": 2},
+      "observation": "Only the status file is placed in the context packet.",
+      "causal_parents": ["e0"],
+      "assertions": ["a0"]
+    },
+    {
+      "id": "e2",
+      "logical_time": 2,
+      "actor": "tool",
+      "operation": "read_status",
+      "source_span": {"file": "controller.py", "line": 3},
+      "state_delta": {"observation": "green", "steps": 3},
+      "observation": "The tool returns the status requested by the learner.",
+      "causal_parents": ["e1"],
+      "assertions": ["a1"]
+    }
+  ],
+  "assertions": [
+    {
+      "id": "a0",
+      "kind": "invariant",
+      "description": "Context contains only the requested status input.",
+      "event_id": "e1",
+      "status": "pass",
+      "evidence": "state.context has one permitted path: repository/status.json"
+    },
+    {
+      "id": "a1",
+      "kind": "prediction",
+      "description": "Reading status returns green for this fixture.",
+      "event_id": "e2",
+      "status": "pass",
+      "evidence": "state.observation equals green"
+    }
+  ],
+  "text_fallback": "At e0 the controller reads the request. At e1 it selects only repository/status.json. At e2 the tool returns green. Both the context invariant and the predicted observation pass."
+}
